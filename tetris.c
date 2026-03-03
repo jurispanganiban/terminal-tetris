@@ -1,9 +1,8 @@
 //   Note:
-// * Changing heap alloc to stack alloc simply because theres no need for such a huge pool of memory
 // * Add gravity
-// * Add turning(will take some time)
+// * Add turning(will take some time) (in pause(learning matrix rotation)
 //	 	- Note a square for the pieces denoting (x, y) as the top left of the piece size and checking will depend on each piece
-// * Line Clear
+// * Line Clear (done)
 // * Scoring
 // * Menu
 
@@ -13,6 +12,9 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <termio.h>
+
+//Not sure if i actually need this
+#include <math.h>
 
 typedef int64_t i64;
 typedef int32_t i32;
@@ -170,6 +172,36 @@ bool bottomout_check(u8 board[][SIZE_X])
 	return false;
 }
 
+
+void line_check(u8 board[][SIZE_X])
+{
+	for(i32 i = 0; i < SIZE_Y; i++)
+	{
+		if(board[i][0] == 1)
+		{
+			bool verdict = true;
+			for(i32 j = 0; j < SIZE_X; j++)
+			{
+				if(board[i][j] == 0) 
+				{ 
+					verdict = false;
+					break;
+				}
+			}
+			if(verdict)
+			{
+				for(i32 k = i; k > 0; k--)
+				{
+					for(i32 l = 0; l < SIZE_X; l++)
+					{
+						board[k][l] = board[k-1][l];
+					}
+				}
+			}
+		}
+	}
+}
+
 void game_start()
 {
 	//Board init
@@ -238,6 +270,8 @@ void game_start()
 						}
 					}
 				}
+
+				line_check(board);
 
 				//Spawns a new piece
 				piece_spawn(L, board);
