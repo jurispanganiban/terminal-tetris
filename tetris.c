@@ -1,4 +1,5 @@
 //   Note:
+// * Changing heap alloc to stack alloc simply because theres no need for such a huge pool of memory
 // * Add gravity
 // * Add turning(will take some time)
 //	 	- Note a square for the pieces denoting (x, y) as the top left of the piece size and checking will depend on each piece
@@ -31,21 +32,21 @@ typedef double f64;
 
 typedef struct
 {
-	u32* data;
+	i32* data;
 } piece_struct;
 
-void board_init(u8* board)
+void board_init(u8 board[][SIZE_X])
 {
 	for(i32 i = 0; i < SIZE_Y; i++)
 	{
 		for(i32 j = 0; j < SIZE_X; j++)
 		{
-			board[j + (SIZE_X * i)] = 0;
+			board[i][j] = 0;
 		}
 	}
 }
 
-void board_display(u8 *board, i32 score)
+void board_display(u8 board[][SIZE_X], i32 score)
 {
 	printf("\tTetris\n========================\n");
 	for(i32 i = 0; i < SIZE_Y; i++)
@@ -53,7 +54,7 @@ void board_display(u8 *board, i32 score)
 		printf("||");
 		for(i32 j = 0; j < SIZE_X; j++)
 		{
-			switch(board[j + (SIZE_X * i)])
+			switch(board[i][j])
 			{
 				case 2:
 				{
@@ -85,80 +86,81 @@ void board_display(u8 *board, i32 score)
 	printf("========================\n");
 }
 
-void piece_spawn(piece_struct piece, u8* board)
+void piece_spawn(piece_struct piece, u8 board[][SIZE_X])
 {
 	for(i32 i = 0; i < 4; i++)
 	{
-		i32 piece_x = piece.data[0 + (i * 2)];
-		i32 piece_y = piece.data[1 + (i * 2)];
+		i32 piece_y = piece.data[0 + (i * 2)];
+		i32 piece_x = piece.data[1 + (i * 2)];
 
-		board[(piece_y + 4) + (piece_x * 10)] = 2;
+		board[piece_y][piece_x+4] = 2;
 	}
 }
 
-void move_down(u8* board)
+void move_down(u8 board[][SIZE_X])
 {
 	for(i32 i = SIZE_Y; i > -1; i--)
 	{
 		for(i32 j = SIZE_X; j > -1; j--)
 		{
-			if(board[j + (i * SIZE_X)] == 2)
+			if(board[i][j] == 2)
 			{
-				if(board[j + ((i+1) * SIZE_X)] == 1) { return; }
-				board[j + ((i) * SIZE_X)] = 0;
-				board[j + ((i+1) * SIZE_X)] = 2;
+				if(board[i+1][j] == 1) { return; }
+				board[i][j] = 0;
+				board[i+1][j] = 2;
 			}
 		}
 	}
 }
 
-void move_right(u8* board)
+void move_right(u8 board[][SIZE_X])
 {
 	for(i32 i = SIZE_Y; i > -1; i--)
 	{
 		for(i32 j = SIZE_X; j > -1; j--)
 		{
-			if(board[j + (i * SIZE_X)] == 2)
+			if(board[i][j] == 2)
 			{
-				if(j == (SIZE_X -1)) { return; }
-				if(board[(j+1) + (i * SIZE_X)] == 1) { return; }
-				board[j + ((i) * SIZE_X)] = 0;
-				board[j+1 + ((i) * SIZE_X)] = 2;
+				if(j == (SIZE_X-1)) { return; }
+				if(board[i][j+1] == 1) { return; }
+				board[i][j] = 0;
+				board[i][j+1] = 2;
 			}
 		}
 	}
 }
 
-void move_left(u8* board)
+void move_left(u8 board[][SIZE_X])
 {
 	for(i32 i = SIZE_Y; i > -1; i--)
 	{
 		for(i32 j = 0; j < SIZE_X; j++)
 		{
-			if(board[j + (i * SIZE_X)] == 2)
+			if(board[i][j] == 2)
 			{
 				if(j == 0) { return; }
-				if(board[(j-1) + (i * SIZE_X)] == 1) { return; }
-				board[j + ((i) * SIZE_X)] = 0;
-				board[j-1 + ((i) * SIZE_X)] = 2;
+				if(board[i][j-1] == 1) { return; }
+				board[i][j] = 0;
+				board[i][j-1] = 2;
 			}
 		}
 	}
 }
 
-bool bottomout_check(u8* board)
+bool bottomout_check(u8 board[][SIZE_X])
 {
 	for(i32 i = 0; i < SIZE_Y; i++)
 	{
 		for(i32 j = 0; j < SIZE_X; j++)
 		{
-			if(board[j + (i * SIZE_X)] == 2)
+			if(board[i][j] == 2)
 			{
 				if(i == SIZE_Y-1)
 				{
 					return true;
 				}
-				if(board[j + ((i+1) * SIZE_X)] == 1)	
+
+				if(board[i+1][j] == 1)	
 				{
 					return true;
 				}
@@ -171,9 +173,8 @@ bool bottomout_check(u8* board)
 void game_start()
 {
 	//Board init
-	u8* board = malloc(sizeof(u8) * SIZE_X * SIZE_Y);
+	u8 board[20][10];
 	board_init(board);
-
 
 	//L init
 	piece_struct L;
@@ -231,9 +232,9 @@ void game_start()
 				{
 					for(i32 j = 0; j < SIZE_X; j++)
 					{
-						if(board[j + (i * SIZE_X)] == 2)
+						if(board[i][j] == 2)
 						{
-							board[j + (i * SIZE_X)] = 1;
+							board[i][j] = 1;
 						}
 					}
 				}
