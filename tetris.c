@@ -288,8 +288,9 @@ void game_start()
 	}
 }
 
-i32 menu(void)
+u8 menu(void)
 {
+	u8 choice;
 	system("clear");
 
 	//dummy board for menu
@@ -297,37 +298,18 @@ i32 menu(void)
 	board_init(board);
 
 	board_display(board, 0);
-	fputs("\033[H", stdout);
-	fputs("\033[15B\033[27C Controls: W - Turn piece", stdout);
-	fputs("\033[1B\033[15D A - Move left", stdout);
-	fputs("\033[1B\033[14D S - Move down", stdout);
-	fputs("\033[1B\033[14D D - Move right", stdout);
-	fputs("\033[13A\033[49D Press z to enter", stdout);
-	fputs("\033[H", stdout);
-	fputs("\033[6B\033[4C  [START GAME]", stdout);
-	fputs("\033[1B\033[16D        QUIT", stdout);
-	fputs("\033[16B", stdout);
-	fputs("\033[H", stdout);
+	printf("\033[H");
+	printf("\033[5B\033[10CPress z to select");
+	printf("\033[H");
+	printf("\033[5B\033[10C[START]");
+	printf("\033[H");
+	printf("\033[6B\033[10CQUIT");
+	printf("\033[17B\033[15D");
 
-	u8 choice = 0;
-	while(true)
+	u8 input;
+	bool running = true;
+	while(running)
 	{
-		u8 input;
-		if(input == 'w')
-		{
-			fputs("\033[H", stdout);
-			printf("\033[6B\033[4C   START GAME ");
-			printf("\033[1B\033[16D       [QUIT]");
-			printf("\033[16B");
-		}
-		if(input == 's')
-		{
-					fputs("\033[H", stdout);
-					printf("\033[6B\033[4C  [START GAME]");
-					printf("\033[1B\033[16D        QUIT ");
-					printf("\033[16B");
-		}
-
 		ssize_t n = read(STDIN_FILENO, &input, 1);
 		if(n > 0)
 		{
@@ -335,22 +317,16 @@ i32 menu(void)
 			{
 				case 'w':
 				{
-					choice = 1;
-					printf("w");
+					return 1;
 				} break;
 
 				case 's':
 				{
-					choice = 2;
-				} break;
-
-				case 'z':
-				{
-					return choice;
+					return 2;
 				} break;
 			}
 		}
-	}
+	}	
 }
 
 int main(void)
@@ -369,8 +345,7 @@ int main(void)
 	{
 		case 1:
 		{
-			system("clear");
-//			game_start();
+			game_start();
 		} break;
 
 	}
